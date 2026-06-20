@@ -295,15 +295,9 @@ build/isodir/boot/myos.bin: build/boot.o build/kernel.o src/linker.ld
 	$(LD) $(LDFLAGS) -T src/linker.ld -o build/isodir/boot/myos.bin build/boot.o build/kernel.o
 
 tinyhobbyos.iso: build/isodir/boot/myos.bin
+	@mkdir -p build/isodir/boot/grub
 	@echo 'set timeout=15' > build/isodir/boot/grub/grub.cfg
 	@echo 'set default=0' >> build/isodir/boot/grub/grub.cfg
-	@echo 'if [ "$$\${grub_platform}" = "efi" ]; then' >> build/isodir/boot/grub/grub.cfg
-	@echo '    terminal_output gfxterm' >> build/isodir/boot/grub/grub.cfg
-	@echo '    set gfxpayload=keep' >> build/isodir/boot/grub/grub.cfg
-	@echo 'else' >> build/isodir/boot/grub/grub.cfg
-	@echo '    terminal_output console' >> build/isodir/boot/grub/grub.cfg
-	@echo '    set gfxpayload=text' >> build/isodir/boot/grub/grub.cfg
-	@echo 'fi' >> build/isodir/boot/grub/grub.cfg
 	@echo 'menuentry "TinyHobbyOS 32-Bit Protected Mode Kernel v0.1.2" {' >> build/isodir/boot/grub/grub.cfg
 	@echo '    multiboot /boot/myos.bin' >> build/isodir/boot/grub/grub.cfg
 	@echo '    boot' >> build/isodir/boot/grub/grub.cfg
@@ -343,6 +337,7 @@ jobs:
           nasm \\
           gcc-multilib \\
           grub-pc-bin \\
+          grub-efi-amd64-bin \\
           xorriso \\
           mtools
 
@@ -360,14 +355,6 @@ jobs:
         cat << 'EOF' > build/isodir/boot/grub/grub.cfg
         set timeout=15
         set default=0
-        
-        if [ "\${grub_platform}" = "efi" ]; then
-            terminal_output gfxterm
-            set gfxpayload=keep
-        else
-            terminal_output console
-            set gfxpayload=text
-        fi
         
         menuentry "TinyHobbyOS 32-Bit Protected Mode Kernel v0.1.2" {
             multiboot /boot/myos.bin
