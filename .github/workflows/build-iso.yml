@@ -44,15 +44,21 @@ jobs:
     - name: Assemble GRUB ISO Structure & Generate ISO
       run: |
         # 繪製 GRUB 選單配置
+        mkdir -p build/isodir/boot/grub
         cat << 'EOF' > build/isodir/boot/grub/grub.cfg
         set timeout=15
         set default=0
+        terminal_output console
+        set gfxpayload=text
         
         menuentry "TinyHobbyOS 32-Bit Protected Mode Kernel v0.1.2" {
             multiboot /boot/myos.bin
             boot
         }
         EOF
+        
+        # 移除任何可能對 GRUB 造成解析錯誤的 Windows 換行符 (\r)
+        sed -i 's/\r//g' build/isodir/boot/grub/grub.cfg
         
         # 壓製 ISO 鏡像
         grub-mkrescue -o tinyhobbyos.iso build/isodir

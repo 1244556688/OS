@@ -297,10 +297,13 @@ build/isodir/boot/myos.bin: build/boot.o build/kernel.o src/linker.ld
 tinyhobbyos.iso: build/isodir/boot/myos.bin
 	@echo 'set timeout=15' > build/isodir/boot/grub/grub.cfg
 	@echo 'set default=0' >> build/isodir/boot/grub/grub.cfg
+	@echo 'terminal_output console' >> build/isodir/boot/grub/grub.cfg
+	@echo 'set gfxpayload=text' >> build/isodir/boot/grub/grub.cfg
 	@echo 'menuentry "TinyHobbyOS 32-Bit Protected Mode Kernel v0.1.2" {' >> build/isodir/boot/grub/grub.cfg
 	@echo '    multiboot /boot/myos.bin' >> build/isodir/boot/grub/grub.cfg
 	@echo '    boot' >> build/isodir/boot/grub/grub.cfg
 	@echo '}' >> build/isodir/boot/grub/grub.cfg
+	@sed -i 's/\r//g' build/isodir/boot/grub/grub.cfg
 	grub-mkrescue -o tinyhobbyos.iso build/isodir
 
 clean:
@@ -348,15 +351,20 @@ jobs:
 
     - name: Assemble GRUB ISO Structure & Generate ISO
       run: |
+        mkdir -p build/isodir/boot/grub
         cat << 'EOF' > build/isodir/boot/grub/grub.cfg
         set timeout=15
         set default=0
+        terminal_output console
+        set gfxpayload=text
         
         menuentry "TinyHobbyOS 32-Bit Protected Mode Kernel v0.1.2" {
             multiboot /boot/myos.bin
             boot
         }
         EOF
+        
+        sed -i 's/\r//g' build/isodir/boot/grub/grub.cfg
         
         grub-mkrescue -o tinyhobbyos.iso build/isodir
 

@@ -82,10 +82,11 @@ export default function App() {
       { text: '🔨 CC: gcc -m32 -c src/kernel.c -o build/kernel.o -std=gnu99 -ffreestanding -O2 -Wall', delay: 3100 },
       { text: '🔗 LD: ld -m elf_i386 -T src/linker.ld -o build/isodir/boot/myos.bin build/boot.o build/kernel.o', delay: 3800 },
       { text: '🚀 GRUB: grub-file --is-x86-multiboot build/isodir/boot/myos.bin [Validation: MULTIBOOT-COMPLIANT]', delay: 4300 },
-      { text: '📂 ISO: Generating grub.cfg menu config tree in isodir/boot/grub/...', delay: 4900 },
-      { text: '💿 XORRISO: grub-mkrescue -o tinyhobbyos.iso build/isodir [Writing MBR boot sectors and system structures]', delay: 5400 },
-      { text: '🎉 SUCCESS: Uploading compiled bootable file: tinyhobbyos.iso (Size: 1.44 MB)', delay: 6200 },
-      { text: '📦 SUCCESS: Build run completed cleanly. ISO Artifact has been published!', delay: 6600 }
+      { text: '📂 ISO: Generating grub.cfg menu config (forcing terminal_output console & gfxpayload=text)...', delay: 4900 },
+      { text: '🧹 SANITIZER: sed -i "s/\\r//g" grub.cfg [Stripped Windows line ending carriage returns to prevent GRUB boot errors!]', delay: 5300 },
+      { text: '💿 XORRISO: grub-mkrescue -o tinyhobbyos.iso build/isodir [Writing MBR boot sectors and system structures]', delay: 5800 },
+      { text: '🎉 SUCCESS: Uploading compiled bootable file: tinyhobbyos.iso (Size: 1.44 MB)', delay: 6400 },
+      { text: '📦 SUCCESS: Build run completed cleanly. ISO Artifact has been published!', delay: 6800 }
     ];
 
     logSteps.forEach((step, idx) => {
