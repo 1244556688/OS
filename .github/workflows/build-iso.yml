@@ -1,0 +1,65 @@
+name: Build TinyHobbyOS ISO
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Set up Build Environment
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          nasm \
+          gcc-multilib \
+          grub-pc-bin \
+          xorriso \
+          mtools
+
+    - name: Compile & Link Bootloader and Kernel
+      run: |
+        mkdir -p build/isodir/boot/grub
+        
+        # 彙編編譯符合 Multiboot 的 32 位元引導代碼
+        nasm -f elf32 src/boot.asm -o build/boot.o
+        
+        # 編譯 freestanding 32位元 C 語言核心代碼
+        gcc -m32 -c src/kernel.c -o build/kernel.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
+        
+        # 使用特定連結器安排各區段，生成 ELF 執行檔
+        ld -m elf_i386 -T src/linker.ld -o build/isodir/boot/myos.bin build/boot.o build/kernel.o
+        
+        # 檢驗多重引導頭
+        grub-file --is-x86-multiboot build/isodir/boot/myos.bin
+
+    - name: Assemble GRUB ISO Structure & Generate ISO
+      run: |
+        # 繪製 GRUB 選單配置
+        cat << 'EOF' > build/isodir/boot/grub/grub.cfg
+        set timeout=15
+        set default=0
+        
+        menuentry "TinyHobbyOS 32-Bit Protected Mode Kernel v0.1.2" {
+            multiboot /boot/myos.bin
+            boot
+        }
+        EOF
+        
+        # 壓製 ISO 鏡像
+        grub-mkrescue -o tinyhobbyos.iso build/isodir
+
+    - name: Upload ISO Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: tinyhobbyos-bootable-iso
+        path: tinyhobbyos.iso
+        retention-days: 7

@@ -1,0 +1,6 @@
+{
+  "name": "微型黑客作業系統與模擬器",
+  "description": "設計、編譯並引導你自己的 32 位元 x86 微型作業系統！配備實時 BIOS/核心引導模擬器、PS/2 雙軸滑鼠驅動、VBE 32位色圖形繪圖引擎，與代碼編譯器沙盒。",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
